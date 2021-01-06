@@ -9,6 +9,7 @@ enum struct ESVipRank
 
     void Unset()
     {
+        if(this.Features != null) delete this.Features;
         this.DisplayName    = "None";
         this.UniqueName     = "none";
         this.Enabled        = false;

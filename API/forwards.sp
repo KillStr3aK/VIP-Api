@@ -12,7 +12,6 @@ public void OnConfigsExecuted()
 
     LoadRanks();
     InitializeDatabase();
-    PostCheckAll();
 }
 
 public void OnClientPostAdminCheck(int client)
@@ -20,7 +19,7 @@ public void OnClientPostAdminCheck(int client)
     if(IsValidClient(client))
     {
         ESPlayers[client].Init(client);
-        Api.GetDefaultRank(ESPlayers[client].Rank);
+        GetPlayerRank(ESPlayers[client]);
     }
 }
 
@@ -30,14 +29,9 @@ public void OnClientDisconnect(int client)
         delete ESPlayers[client].Features;
 }
 
-public void OnAllPluginsLoaded()
-{
-}
-
 public void OnPluginEnd()
 {
     LogMsg(Debug, "Started shutting down session..");
-    delete g_smFeatures;
-    delete ESVipRanks;
+    
     LogMsg(Debug, "Shutting down session finished!");
 }

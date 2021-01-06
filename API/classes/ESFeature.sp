@@ -1,9 +1,13 @@
 enum struct ESFeature
 {
+	Handle		Plugin;
 	char		DisplayName[FEATURE_NAME_LENGTH];
 	char		UniqueName[FEATURE_UNIQUE_LENGTH];
+	char		Description[FEATURE_STRING_LENGTH];
 	ModuleType	ModuleType;
-	ValueType	ValueType;
+	Cookie		Cookie;
+	ModuleState	State;	
+	/*ValueType	ValueType;
 
 	void GetValueTypeString(char[] szOutput, int iSize)
 	{
@@ -15,5 +19,5 @@ enum struct ESFeature
 			case FLOAT: strcopy(szOutput, sizeof(iSize), "FLOAT");
 			default: strcopy(szOutput, sizeof(iSize), "NULL");
 		}
-	}
+	}*/
 }

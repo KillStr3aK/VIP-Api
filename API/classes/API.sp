@@ -1,5 +1,3 @@
-/* API Wrapper w StateBag */
-
 methodmap API < StringMap {
     public API()
     {
@@ -9,7 +7,7 @@ methodmap API < StringMap {
         FormatTime(szTime, sizeof(szTime), LOG_TIMEFORMAT, GetTime());
         BuildPath(Path_SM, g_szLogFile, sizeof(g_szLogFile), LOG_FILEFORMAT, szTime);
         LogMsg(Debug, "Started initializing session..");
-
+        StateBag.SetValue("Loaded", false);
         return view_as<API>(StateBag);
     }
 
@@ -25,6 +23,13 @@ methodmap API < StringMap {
         return true;
     }
 
+    public bool IsLoaded()
+    {
+        bool bLoaded = false;
+        this.GetValue("Loaded", bLoaded);
+        return bLoaded;
+    }
+
     public static bool GetRank(const char[] rankName, ESVipRank esvr)
     {
         return ESVipRanks.GetArray(rankName, esvr, sizeof(esvr));
@@ -35,7 +40,32 @@ methodmap API < StringMap {
         return ESVipRanks.GetArray(rankName, user.Rank, sizeof(user.Rank));
     }
 
-    public static bool RegisterFeature(const char[] featureName, const ESFeature feature)
+    public static int GetRankFeaturesCount(ESVipRank esvr, bool validOnly = true)
+    {
+        if(esvr.Features == null) return 0;
+
+        StringMapSnapshot Keys = esvr.Features.Snapshot();
+        if(Keys.Length == 0)
+        {
+            delete Keys;
+            return 0;
+        }
+
+        int count = 0;
+        for(int i = 0; i < Keys.Length; i++)
+        {
+            Keys.GetKey(i, szBuffer, sizeof(szBuffer));
+            if(validOnly && !API.IsValidFeature(szBuffer))
+                continue;
+
+            ++count;
+        }
+
+        delete Keys;
+        return count;
+    }
+
+    public static bool RegisterFeature(const char[] featureName, ESFeature feature)
     {
         if(g_smFeatures.SetArray(featureName, feature, sizeof(feature), false))
         {
@@ -47,11 +77,26 @@ methodmap API < StringMap {
         }
     }
 
+    public static bool SetFeatureState(const char[] featureName, ModuleState state)
+    {
+        ESFeature feature;
+        if(g_smFeatures.GetArray(featureName, feature, sizeof(feature)))
+        {
+            feature.State = state;
+            g_smFeatures.SetArray(featureName, feature, sizeof(feature));
+            return true;
+        }
+
+        return false;
+    }
+
     public static bool UnregisterFeature(const char[] featureName)
     {
         ESFeature feature;
         if(g_smFeatures.GetArray(featureName, feature, sizeof(feature)))
         {
+            delete feature.Plugin;
+            delete feature.Cookie;
             if(g_smFeatures.Remove(featureName))
             {
                 LogMsg(Info, "Module %s has been unregistered!", feature.DisplayName);
@@ -60,6 +105,19 @@ methodmap API < StringMap {
         }
 
         LogMsg(Warning, "Tried to unregister %s but it was not registered!", featureName);
+        return false;
+    }
+
+    public static bool IsValidFeature(const char[] featureName)
+    {
+        ESFeature feature;
+        if(g_smFeatures.GetArray(featureName, feature, sizeof(feature)))
+        {
+            if(feature.Plugin == null) return false;
+            if(strcmp(feature.UniqueName, NULL_STRING) == 0) return false;
+            return feature.State == LOADED;
+        }
+
         return false;
     }
 

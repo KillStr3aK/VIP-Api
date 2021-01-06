@@ -6,6 +6,7 @@
 #include "API\directives.sp"
 #include "API\header.sp"
 
+#include "API\enums.sp"
 #include "API\globals.sp"
 #include "API\logs.sp"
 #include "API\utils.sp"

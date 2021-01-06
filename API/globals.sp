@@ -1,13 +1,3 @@
-enum ConsoleVariables
-{
-    ConVar_Database = 0,
-    ConVar_Ranks,
-    ConVar_CommandVIP,
-    ConVar_CommandRefreshCfg,
-    ConVar_Cooldown,
-    ConVar_Count
-}
-
 ConVar      Variables[ConVar_Count];
 Database    g_hDatabase;
 
@@ -21,3 +11,5 @@ char        g_szDatabase[SECTION_LENGTH];
 
 char        g_szCommandVIP[COMMAND_LENGTH];
 char        g_szRefreshCommand[COMMAND_LENGTH];
+
+GlobalForward APIForward[Forward_Count];

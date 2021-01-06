@@ -1,4 +1,4 @@
-typedef RanksMenu = function void(ESPlayer user, ESVipRank rank);
+typedef RanksMenu = function void (ESPlayer user, ESVipRank rank);
 
 public int MainMenuHandler(Menu menu, MenuAction menuAction, int param1, int param2)
 {
@@ -6,10 +6,13 @@ public int MainMenuHandler(Menu menu, MenuAction menuAction, int param1, int par
     {
         char szInfo[10];
         menu.GetItem(param2, szInfo, sizeof(szInfo));
-        
-        if(strcmp(szInfo, "ranks") == 0)
+
+        switch(StringToInt(szInfo))
         {
-            ListRanks(ESPlayers[param1]);
+            case 0: FeaturesMenu(ESPlayers[param1], ESPlayers[param1].Rank);
+            case 1: MainMenu(ESPlayers[param1]);
+            case 2: MainMenu(ESPlayers[param1]);
+            case 3: ListRanks(ESPlayers[param1]);
         }
     } else if(menuAction == MenuAction_End)
     {
@@ -117,13 +120,3 @@ static void CallbackMenu(ESPlayer user, RanksMenu menu)
         PrintToChat(user.Index, "Something happened..");
     }
 }
-
-/*
-else if(menuAction == MenuAction_Cancel)
-{
-    if(param2 == MenuCancel_ExitBack)
-    {
-        //openPreviousMenu();
-    }
-}
-*/
