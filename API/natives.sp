@@ -65,7 +65,7 @@ public int Native_RegisterModule(Handle hPlugin, int iParams)
     Call_PushString(feature.DisplayName);
 	Call_PushString(feature.UniqueName);
 	Call_PushString(feature.Description);
-	Call_PushCell(feature.ModuleType)
+	Call_PushCell(feature.ModuleType);
     Call_Finish();
 	return view_as<int>(LOADED);
 }
@@ -82,10 +82,7 @@ public int Native_UnregisterModule(Handle hPlugin, int iParams)
 	API.InitializePlayers();
 
 	Call_StartForward(APIForward[Forward_ModuleRemoved]);
-    Call_PushString(feature.DisplayName);
-	Call_PushString(feature.UniqueName);
-	Call_PushString(feature.Description);
-	Call_PushCell(feature.ModuleType)
+    Call_PushString(szFeatureName);
     Call_Finish();
 	return 0;
 }

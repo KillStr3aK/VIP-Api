@@ -3,29 +3,25 @@ public void MainMenu(ESPlayer user)
     Menu menu = new Menu(MainMenuHandler);
 
     char szTitle[255];
-    Format(szTitle, sizeof(szTitle), "VIP System\nYour Permission: %s\nExpires: - (- days)\n", user.Rank.DisplayName);
+    Format(szTitle, sizeof(szTitle), "VIP System\nYour Rank: %s\nExpires: - (- days)\n ", user.Rank.DisplayName);
     menu.SetTitle(szTitle);
 
-    menu.AddItem("0", "Manage Features", API.GetRankFeaturesCount(user.Rank) > 0 ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED);
-    menu.AddItem("1", "Manage Permission\n");
+    menu.AddItem("0", "Manage Perks", GetRankFeaturesCount(user.Rank) > 0 ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED);
+    menu.AddItem("1", "Manage Rank\n ");
     menu.AddItem("2", "General Information");
-    menu.AddItem("3", "Available Perks");
+    menu.AddItem("3", "Available Ranks\n ");
+    menu.AddItem("4", "Admin Settings", CheckCommandAccess(user.Index, NULL_STRING, ADMFLAG_ROOT, true) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED);
     menu.Display(user.Index, MENU_TIME_FOREVER);
 }
 
 public void ListRanks(ESPlayer user)
 {
     Menu menu = new Menu(RanklistHandler);
-    menu.SetTitle("Ranks");
+    menu.SetTitle("VIP System\nYour Rank: %s\nExpires: - (- days)\n ", user.Rank.DisplayName);
 
     StringMapSnapshot Keys = ESVipRanks.Snapshot();
-    if(Keys.Length == 0)
-    {
-        delete Keys;
-        return;
-    }
-
     char szBuffer[RANK_UNIQUE_LENGTH];
+
     for(int i = 0; i < Keys.Length; i++)
     {
         Keys.GetKey(i, szBuffer, sizeof(szBuffer));
@@ -36,6 +32,11 @@ public void ListRanks(ESPlayer user)
         if(!rank.Hide) menu.AddItem(rank.UniqueName, rank.DisplayName, rank.Enabled ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED);
     }
 
+    if(menu.ItemCount == 0)
+    {
+        menu.AddItem("", "Rank configuration is empty!", ITEMDRAW_DISABLED);
+    }
+
     menu.ExitBackButton = true;
     menu.Display(user.Index, MENU_TIME_FOREVER);
     delete Keys;
@@ -44,9 +45,9 @@ public void ListRanks(ESPlayer user)
 public void RankDetails(ESPlayer user, ESVipRank rank)
 {
     Menu menu = new Menu(RankDetailsHandler);
-    menu.SetTitle("Details\nRank: %s", rank.DisplayName);
-    menu.AddItem("equip", "Equip", strcmp(user.Rank.UniqueName, rank.UniqueName) == 0 ? ITEMDRAW_DISABLED : ITEMDRAW_DEFAULT);
-    menu.AddItem("features", "Features");
+    menu.SetTitle("VIP System\nYour Rank: %s\nExpires: - (- days)\n \nSelected Rank: %s\n ", user.Rank.DisplayName, rank.DisplayName);
+    menu.AddItem("0", "Equip", strcmp(user.Rank.UniqueName, rank.UniqueName) == 0 ? ITEMDRAW_DISABLED : ITEMDRAW_DEFAULT);
+    menu.AddItem("1", "Features");
     menu.ExitBackButton = true;
     menu.Display(user.Index, MENU_TIME_FOREVER);
 }
@@ -54,20 +55,13 @@ public void RankDetails(ESPlayer user, ESVipRank rank)
 public void FeaturesMenu(ESPlayer user, ESVipRank rank)
 {
     Menu menu = new Menu(FeaturesMenuHandler);
-    menu.SetTitle("Features\nRank: %s", rank.DisplayName);
+    menu.SetTitle("VIP System\nYour Rank: %s\nExpires: - (- days)\n \nSelected Rank: %s\n ", user.Rank.DisplayName, rank.DisplayName);
 
     if(rank.Features == null)
         return;
 
     StringMapSnapshot Keys = rank.Features.Snapshot();
-    if(Keys.Length == 0)
-    {
-        delete Keys;
-        return;
-    }
-
-    char szBuffer[RANK_UNIQUE_LENGTH];
-    char szTemp[RANK_NAME_LENGTH + 12];
+    char szBuffer[FEATURE_UNIQUE_LENGTH];
     
     if(strcmp(user.Rank.UniqueName, rank.UniqueName) == 0)
     {
@@ -79,11 +73,11 @@ public void FeaturesMenu(ESPlayer user, ESVipRank rank)
 
             ESFeatureContext context;
             user.Features.GetArray(szBuffer, context, sizeof(context));
-            
-            Format(szTemp, sizeof(szTemp), "%s [%s]", context.Feature.DisplayName, user.GetFeatureState(context.Feature.UniqueName) == ENABLED ? "ON" : "OFF");
-            menu.AddItem(context.Feature.UniqueName, szTemp);
+            menu.AddItem(context.Feature.UniqueName, context.Feature.DisplayName);
         }
     } else {
+        char szTemp[RANK_NAME_LENGTH + 12];
+
         for(int i = 0; i < Keys.Length; i++)
         {
             Keys.GetKey(i, szBuffer, sizeof(szBuffer));
@@ -108,4 +102,24 @@ public void FeaturesMenu(ESPlayer user, ESVipRank rank)
     menu.ExitBackButton = true;
     menu.Display(user.Index, MENU_TIME_FOREVER);
     delete Keys;
+}
+
+public void FeatureDetails(ESPlayer user, ESFeatureContext context)
+{
+    Menu menu = new Menu(FeatureDetailsHandler);
+    menu.SetTitle("VIP System\nYour Rank: %s\nExpires: - (- days)\n \nSelected Feature: %s\nDescription: %s\n ", user.Rank.DisplayName, context.Feature.DisplayName, strcmp(context.Feature.Description, NULL_STRING) == 0 ? "No description" : context.Feature.Description);
+    menu.AddItem(context.Feature.UniqueName, user.GetFeatureState(context.Feature.UniqueName) == ENABLED ? "Disable" : "Enable");
+    menu.ExitBackButton = true;
+    menu.Display(user.Index, MENU_TIME_FOREVER);
+}
+
+public void AdminMenu(ESPlayer user)
+{
+    Menu menu = new Menu(AdminMenuHandler);
+    menu.SetTitle("VIP System\nYour Rank: %s\nExpires: - (- days)\n \nAdmin Settings", user.Rank.DisplayName);
+    menu.AddItem("0", "Manage User");
+    menu.AddItem("1", "Delete User\n ");
+    menu.AddItem("2", "Refresh Config");
+    menu.ExitBackButton = true;
+    menu.Display(user.Index, MENU_TIME_FOREVER);
 }

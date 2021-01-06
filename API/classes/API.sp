@@ -40,31 +40,6 @@ methodmap API < StringMap {
         return ESVipRanks.GetArray(rankName, user.Rank, sizeof(user.Rank));
     }
 
-    public static int GetRankFeaturesCount(ESVipRank esvr, bool validOnly = true)
-    {
-        if(esvr.Features == null) return 0;
-
-        StringMapSnapshot Keys = esvr.Features.Snapshot();
-        if(Keys.Length == 0)
-        {
-            delete Keys;
-            return 0;
-        }
-
-        int count = 0;
-        for(int i = 0; i < Keys.Length; i++)
-        {
-            Keys.GetKey(i, szBuffer, sizeof(szBuffer));
-            if(validOnly && !API.IsValidFeature(szBuffer))
-                continue;
-
-            ++count;
-        }
-
-        delete Keys;
-        return count;
-    }
-
     public static bool RegisterFeature(const char[] featureName, ESFeature feature)
     {
         if(g_smFeatures.SetArray(featureName, feature, sizeof(feature), false))
