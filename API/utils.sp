@@ -21,3 +21,23 @@ stock void RegCmd(const char[] szCommand, ConCmd conCallback, const char[] szDes
 	RegConsoleCmd(szCommand, conCallback, szDesc, iFlags);
 	LogMsg(Debug, "Registered command %s", szCommand);
 }
+
+stock char IntToStr(const int num)
+{
+	char szTemp[10];
+	IntToString(num, szTemp, sizeof(szTemp));
+	return szTemp;
+}
+
+stock void GetTimeString(ETime time, char[] output, int size)
+{
+	switch(time)
+	{
+		case Time_Minute: strcopy(output, size, "Minute");
+		case Time_Hour: strcopy(output, size, "Hour");
+		case Time_Day: strcopy(output, size, "Day");
+		case Time_Week: strcopy(output, size, "Week");
+		case Time_Month: strcopy(output, size, "Month");
+		case Time_Year: strcopy(output, size, "Year");
+	}
+}

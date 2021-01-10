@@ -2,6 +2,7 @@ public APLRes AskPluginLoad2(Handle hPlugin, bool bLoad, char[] szError, int iMa
 {
 	RegPluginLibrary("VIP_API");
 
+	CreateNative("VIP_GetVersion", Native_Version);
 	CreateNative("VIP_IsLoaded", Native_IsLoaded);
 	CreateNative("VIP_IsFeatureLoaded", Native_IsFeatureLoaded);
 
@@ -16,6 +17,11 @@ public APLRes AskPluginLoad2(Handle hPlugin, bool bLoad, char[] szError, int iMa
 	APIForward[Forward_ModuleRemoved]	= new GlobalForward("VIP_OnFeatureRemoved",		ET_Ignore, Param_String, Param_String, Param_String, Param_Cell);
 	APIForward[Forward_ClientLoaded]	= new GlobalForward("VIP_OnClientLoaded",		ET_Ignore, Param_Cell,	 Param_String, Param_String);
 	return APLRes_Success;
+}
+
+public int Native_Version(Handle plugin, int params)
+{
+	return PLUGIN_INT_VERSION;
 }
 
 public int Native_IsLoaded(Handle hPlugin, int iParams)

@@ -23,6 +23,16 @@ static stock void DatabaseCallback(Database hDatabase, const char[] szError, any
 
 	g_hDatabase = hDatabase;
 	LogMsg(Info, "Successfully connected to the database!");
+
+    g_hDatabase.Query(DB_TableCreate, "CREATE TABLE IF NOT EXISTS `vip_api` ( \
+        `ID` int(11) NOT NULL, \
+        `playername` varchar(128) COLLATE " ... COLLATION ... " NOT NULL, \
+        `steamid` varchar(20) COLLATE " ... COLLATION ... " NOT NULL, \
+        `rank_unique` varchar(16) COLLATE " ... COLLATION ... " NOT NULL, \
+        `insert_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, \
+        `expire_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00', \
+        `admin` varchar(128) COLLATE " ... COLLATION ... " NOT NULL DEFAULT 'SYSTEM' \
+        ) ENGINE=InnoDB  DEFAULT CHARSET=" ... CHARSET ... " COLLATE=" ... COLLATION ... " AUTO_INCREMENT=1;");
     LogMsg(Debug, "Initialization session done! Version: %s", PLUGIN_VERSION);
 
     Api.SetValue("Loaded", true);
@@ -30,6 +40,28 @@ static stock void DatabaseCallback(Database hDatabase, const char[] szError, any
 
     Call_StartForward(APIForward[Forward_OnLoaded]);
     Call_Finish();
+}
+
+static stock void DB_TableCreate(Database hOwner, DBResultSet hResult, const char[] szError, any data)
+{
+	if (szError[0])
+	{
+		SetFailState("DB_TableCreate: %s", szError);
+		return;
+	}
+
+	g_hDatabase.Query(DB_ErrorCheck, "SET NAMES '" ... CHARSET ... "'");
+	g_hDatabase.Query(DB_ErrorCheck, "SET CHARSET '" ... CHARSET ... "'");
+
+	g_hDatabase.SetCharset(CHARSET);
+}
+
+static stock void DB_ErrorCheck(Database hOwner, DBResultSet hResult, const char[] szError, any data)
+{
+	if (szError[0])
+	{
+		LogError("DB_ErrorCheck: %s", szError);
+	}
 }
 
 public void GetPlayerRank(const ESPlayer user)
@@ -44,7 +76,7 @@ public void GetPlayerRank(const ESPlayer user)
         return;
     }
 
-    char szSteamId[32];
+    char szSteamId[20];
     GetClientAuthId(user.Index, AuthId_Steam2, szSteamId, sizeof(szSteamId));
 
     char szQuery[256];

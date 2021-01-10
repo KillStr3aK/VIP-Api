@@ -7,6 +7,7 @@ methodmap API < StringMap {
         FormatTime(szTime, sizeof(szTime), LOG_TIMEFORMAT, GetTime());
         BuildPath(Path_SM, g_szLogFile, sizeof(g_szLogFile), LOG_FILEFORMAT, szTime);
         LogMsg(Debug, "Started initializing session..");
+        
         StateBag.SetValue("Loaded", false);
         return view_as<API>(StateBag);
     }
@@ -108,4 +109,4 @@ methodmap API < StringMap {
     }
 };
 
-API Api = view_as<API>(NULL);
+API Api;

@@ -1,9 +1,10 @@
 /* Plugin Header Directives */
 #define PLUGIN_VERSION  "1.0-d"
+#define PLUGIN_INT_VERSION 100068 //1.0-ascii(tolower('d'))
 
 /* Database Directives */
 #define CHARSET         "utf8mb4"
-#define COLLATION       "utf8mb4_unicode_ci"
+#define COLLATION       "utf8mb4_bin"
 #define SECTION_LENGTH  32
 
 /* Debug Directives */

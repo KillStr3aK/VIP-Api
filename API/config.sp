@@ -6,6 +6,7 @@ void CreateVariables()
     Variables[ConVar_CommandVIP] = CreateConVar("vip_command", "sm_vip", "Command to open the main menu.");
     Variables[ConVar_CommandRefreshCfg] = CreateConVar("vip_refresh_command", "sm_refreshvip", "Command to refresh the configuration file.");
     Variables[ConVar_Cooldown] = CreateConVar("vip_cooldown", "1.0", "Cooldown between actions.");
+    Variables[ConVar_AutoDelete] = CreateConVar("vip_auto_delete", "1", "Automatically delete epxired ranks");
     AutoExecConfig(true, "VIP_API", "sourcemod");
     LogMsg(Debug, "Done!");
 }

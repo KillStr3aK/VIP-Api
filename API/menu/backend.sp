@@ -14,8 +14,7 @@ public int MainMenuHandler(Menu menu, MenuAction menuAction, int param1, int par
                 case 0: FeaturesMenu(ESPlayers[param1], ESPlayers[param1].Rank);
                 case 1: MainMenu(ESPlayers[param1]);
                 case 2: MainMenu(ESPlayers[param1]);
-                case 3: ListRanks(ESPlayers[param1]);
-                case 4: AdminMenu(ESPlayers[param1]);
+                case 3: AdminMenu(ESPlayers[param1]);
             }
         }
 
@@ -36,7 +35,7 @@ public int RanklistHandler(Menu menu, MenuAction menuAction, int param1, int par
             if(API.GetRank(szInfo, rank))
             {
                 ESPlayers[param1].StateBag.SetString("CachedRank", rank.UniqueName);
-                RankDetails(ESPlayers[param1], rank);
+                SelectTime(ESPlayers[param1]);
             } else {
                 LogMsg(Error, "Unable to get the details of %s", szInfo);
                 PrintToChat(param1, "Something happened..");
@@ -161,7 +160,7 @@ public int AdminMenuHandler(Menu menu, MenuAction menuAction, int param1, int pa
 
             switch(StringToInt(szInfo))
             {
-                case 0: /*ManageUser*/AdminMenu(ESPlayers[param1]);
+                case 0: /*ManageUser*/PlayerList(ESPlayers[param1]);
                 case 1: /*DeleteUser*/AdminMenu(ESPlayers[param1]);
                 case 2:
                 {
@@ -176,6 +175,238 @@ public int AdminMenuHandler(Menu menu, MenuAction menuAction, int param1, int pa
             if(param2 == MenuCancel_ExitBack)
             {
                 MainMenu(ESPlayers[param1]);
+            }
+        }
+
+        case MenuAction_End: delete menu;
+    }
+}
+
+public int PlayerListHandler(Menu menu, MenuAction menuAction, int param1, int param2)
+{
+    switch(menuAction)
+    {
+        case MenuAction_Select:
+        {
+            char szInfo[10];
+            menu.GetItem(param2, szInfo, sizeof(szInfo));
+
+            int target = StringToInt(szInfo);
+            if(IsValidClient(target))
+            {
+                ESPlayers[param1].StateBag.SetValue("CachedTarget", target);
+                ManageUser(ESPlayers[param1], ESPlayers[target]);
+            } else {
+                PlayerList(ESPlayers[param1]);
+                PrintToChat(param1, "The selected player is no longer available.");
+            }
+        }
+
+        case MenuAction_Cancel:
+        {
+            if(param2 == MenuCancel_ExitBack)
+            {
+                AdminMenu(ESPlayers[param1]);
+            }
+        }
+
+        case MenuAction_End: delete menu;
+    }
+}
+
+public int ManageUserHandler(Menu menu, MenuAction menuAction, int param1, int param2)
+{
+    switch(menuAction)
+    {
+        case MenuAction_Select:
+        {
+            char szInfo[10];
+            menu.GetItem(param2, szInfo, sizeof(szInfo));
+
+            switch(StringToInt(szInfo))
+            {
+                case 0: ListRanks(ESPlayers[param1]);
+                case 1: /*ExtendRank*/AdminMenu(ESPlayers[param1]);
+                case 2:
+                {
+                    int target = -1;
+                    ESPlayers[param1].StateBag.GetValue("CachedTarget", target);
+                    
+                    if(IsValidClient(target)) VerifyDeleteMenu(ESPlayers[param1], ESPlayers[target]);
+                    else {
+                        PlayerList(ESPlayers[param1]);
+                        PrintToChat(param1, "The selected player is no longer available.");
+                    }
+                }
+            }
+        }
+
+        case MenuAction_Cancel:
+        {
+            if(param2 == MenuCancel_ExitBack)
+            {
+                PlayerList(ESPlayers[param1]);
+            }
+        }
+
+        case MenuAction_End: delete menu;
+    }
+}
+
+public int SelectTimeHandler(Menu menu, MenuAction menuAction, int param1, int param2)
+{
+    switch(menuAction)
+    {
+        case MenuAction_Select:
+        {
+            char szInfo[10];
+            menu.GetItem(param2, szInfo, sizeof(szInfo));
+
+            ETime timeFormat = view_as<ETime>(StringToInt(szInfo));
+            ESPlayers[param1].StateBag.SetValue("CachedTime", timeFormat);
+            SelectTimeAmount(ESPlayers[param1], timeFormat);
+        }
+
+        case MenuAction_Cancel:
+        {
+            if(param2 == MenuCancel_ExitBack)
+            {
+                int target = -1;
+                ESPlayers[param1].StateBag.GetValue("CachedTarget", target);
+
+                if(IsValidClient(target)) ManageUser(ESPlayers[param1], ESPlayers[target]);
+                else {
+                    PlayerList(ESPlayers[param1]);
+                    PrintToChat(param1, "The selected player is no longer available.");
+                }
+            }
+        }
+
+        case MenuAction_End: delete menu;
+    }
+}
+
+public int SelectTimeAmountHandler(Menu menu, MenuAction menuAction, int param1, int param2)
+{
+    switch(menuAction)
+    {
+        case MenuAction_Select:
+        {
+            char szInfo[10];
+            menu.GetItem(param2, szInfo, sizeof(szInfo));
+            int amount = StringToInt(szInfo);
+
+            int target = -1;
+            ESPlayers[param1].StateBag.GetValue("CachedTarget", target);
+            if(IsValidClient(target))
+            {
+                char szUnique[RANK_UNIQUE_LENGTH];
+                ESPlayers[param1].StateBag.GetString("CachedRank", szUnique, sizeof(szUnique));
+                
+                ESVipRank rank;
+                if(API.GetRank(szUnique, rank))
+                {
+                    ETime timeFormat;
+                    ESPlayers[param1].StateBag.GetValue("CachedTime", timeFormat);
+
+                    VerifyMenu(ESPlayers[param1], ESPlayers[target], rank, timeFormat, amount);
+                } else {
+                    MainMenu(ESPlayers[param1]);
+                    PrintToChat(param1, "Something happened..");
+                    LogMsg(Error, "Unable to SelectTimeAmountHandler.API::GetRank()");
+                }
+            } else {
+                PlayerList(ESPlayers[param1]);
+                PrintToChat(param1, "The selected player is no longer available.");
+            }
+        }
+
+        case MenuAction_Cancel:
+        {
+            if(param2 == MenuCancel_ExitBack)
+            {
+                int target = -1;
+                ESPlayers[param1].StateBag.GetValue("CachedTarget", target);
+
+                if(IsValidClient(target)) SelectTime(ESPlayers[param1]);
+                else {
+                    PlayerList(ESPlayers[param1]);
+                    PrintToChat(param1, "The selected player is no longer available.");
+                }
+            }
+        }
+
+        case MenuAction_End: delete menu;
+    }
+}
+
+public int VerifyMenuHandler(Menu menu, MenuAction menuAction, int param1, int param2)
+{
+    switch(menuAction)
+    {
+        case MenuAction_Select:
+        {
+            char szInfo[10];
+            menu.GetItem(param2, szInfo, sizeof(szInfo));
+
+            switch(StringToInt(szInfo))
+            {
+                case 0: PrintToChatAll("TODO");
+                case 1: PrintToChatAll("TODO");
+            }
+        }
+
+        case MenuAction_Cancel:
+        {
+            if(param2 == MenuCancel_ExitBack)
+            {
+                int target = -1;
+                ESPlayers[param1].StateBag.GetValue("CachedTarget", target);
+
+                if(IsValidClient(target))
+                {
+                    ETime timeFormat;
+                    ESPlayers[param1].StateBag.GetValue("CachedTime", timeFormat);
+                    SelectTimeAmount(ESPlayers[param1], timeFormat);
+                } else {
+                    PlayerList(ESPlayers[param1]);
+                    PrintToChat(param1, "The selected player is no longer available.");
+                }
+            }
+        }
+
+        case MenuAction_End: delete menu;
+    }
+}
+
+public int VerifyDeleteMenuHandler(Menu menu, MenuAction menuAction, int param1, int param2)
+{
+    switch(menuAction)
+    {
+        case MenuAction_Select:
+        {
+            char szInfo[10];
+            menu.GetItem(param2, szInfo, sizeof(szInfo));
+
+            switch(StringToInt(szInfo))
+            {
+                case 0: PrintToChatAll("TODO");
+                case 1: PrintToChatAll("TODO");
+            }
+        }
+
+        case MenuAction_Cancel:
+        {
+            if(param2 == MenuCancel_ExitBack)
+            {
+                int target = -1;
+                ESPlayers[param1].StateBag.GetValue("CachedTarget", target);
+
+                if(IsValidClient(target)) ManageUser(ESPlayers[param1], ESPlayers[target]);
+                else {
+                    PlayerList(ESPlayers[param1]);
+                    PrintToChat(param1, "The selected player is no longer available.");
+                }
             }
         }
 
@@ -201,7 +432,7 @@ static void CallbackMenu(ESPlayer user, RanksMenu menu)
     }
 }
 
-stock int GetRankFeaturesCount(ESVipRank esvr, bool validOnly = true)
+stock int GetRankFeaturesCount(ESVipRank esvr, int& invalid = 0, bool validOnly = true)
 {
 	if(esvr.Features == null) return 0;
 
@@ -213,13 +444,17 @@ stock int GetRankFeaturesCount(ESVipRank esvr, bool validOnly = true)
     }
 
     int count = 0;
+    invalid = 0;
     char szBuffer[FEATURE_UNIQUE_LENGTH];
         
     for(int i = 0; i < Keys.Length; i++)
     {
         Keys.GetKey(i, szBuffer, sizeof(szBuffer));
         if(validOnly && !API.IsValidFeature(szBuffer))
+        {
+            ++invalid;
             continue;
+        }
 
         ++count;
     }

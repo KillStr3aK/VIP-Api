@@ -26,7 +26,11 @@ public void OnClientPostAdminCheck(int client)
 public void OnClientDisconnect(int client)
 {
     if(IsValidClient(client))
+    {
+        ESPlayers[client].Rank.Unset();
+        delete ESPlayers[client].StateBag;
         delete ESPlayers[client].Features;
+    }
 }
 
 public void OnPluginEnd()
