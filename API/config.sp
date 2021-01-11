@@ -51,7 +51,7 @@ void LoadRanks()
         keyValues.GetSectionName(vipRank.DisplayName, sizeof(ESVipRank::DisplayName));
         strcopy(vipRank.UniqueName, sizeof(ESVipRank::UniqueName), szUnique);
 
-        vipRank.Enabled = view_as<bool>(keyValues.GetNum("Enabled", 0));
+        vipRank.Enabled = view_as<bool>(keyValues.GetNum("Enabled", 1));
         vipRank.Default = view_as<bool>(keyValues.GetNum("Default", 0));
         vipRank.Hide = view_as<bool>(keyValues.GetNum("Hide", 0));
 

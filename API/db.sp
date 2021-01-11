@@ -64,15 +64,11 @@ static stock void DB_ErrorCheck(Database hOwner, DBResultSet hResult, const char
 	}
 }
 
-public void GetPlayerRank(const ESPlayer user)
+public void GetPlayerRank(ESPlayer user)
 {
     if(g_hDatabase == null)
     {
-        if(!Api.GetDefaultRank(user.Rank))
-        {
-            LogMsg(Error, "Unable to set default rank for player %N", user.Index);
-        }
-
+        SetDefaultRank(user);
         return;
     }
 
@@ -92,26 +88,20 @@ static stock void DB_LoadData(Database db, DBResultSet results, const char[] err
         return;
     }
 
+    char szUnique[RANK_UNIQUE_LENGTH];
     if(results.FetchRow())
     {
         int columnIndex;
         results.FieldNameToNum("rank_unique", columnIndex);
-
-        char szUnique[RANK_UNIQUE_LENGTH];
         results.FetchString(columnIndex, szUnique, sizeof(szUnique));
+
         if(!API.SetRank(ESPlayers[index], szUnique))
         {
             LogMsg(Error, "Unable to SetRank(%s) for player %N (Rank does not exist, or failed to load)", szUnique, index);
-            if(!Api.GetDefaultRank(ESPlayers[index].Rank))
-            {
-                LogMsg(Error, "Unable to set default rank for player %N", index);
-            }
+            SetDefaultRank(ESPlayers[index]);
         }
     } else {
-        if(!Api.GetDefaultRank(ESPlayers[index].Rank))
-        {
-            LogMsg(Error, "Unable to set default rank for player %N", index);
-        }
+        SetDefaultRank(ESPlayers[index]);
     }
 
     ESPlayers[index].LoadFeatures();
@@ -121,4 +111,65 @@ static stock void DB_LoadData(Database db, DBResultSet results, const char[] err
     Call_PushString(ESPlayers[index].Rank.DisplayName);
     Call_PushString(ESPlayers[index].Rank.UniqueName);
     Call_Finish();
+}
+
+static stock void SetDefaultRank(ESPlayer user)
+{
+	char szUnique[RANK_UNIQUE_LENGTH];
+	if(!Api.GetString("DefaultRank", szUnique, sizeof(szUnique)) || !API.SetRank(user, szUnique))
+    {
+        LogMsg(Error, "Unable to set default rank for player %N", user.Index);
+    }
+}
+
+public void RemovePlayerRank(ESPlayer user)
+{
+    char szSteamId[20];
+    GetClientAuthId(user.Index, AuthId_Steam2, szSteamId, sizeof(szSteamId));
+
+	char szQuery[256];
+	Format(szQuery, sizeof(szQuery), "DELETE FROM `vip_api` WHERE `steamid` = '%s';", szSteamId);
+	g_hDatabase.Query(DB_RemoveRank, szQuery, user.Index);
+}
+
+public void DB_RemoveRank(Database hOwner, DBResultSet hResult, const char[] szError, int index)
+{
+	if (szError[0])
+	{
+		LogMsg(Error, "DB_RemoveRank: %s", szError);
+		return;
+	}
+
+    OnClientPostAdminCheck(index);
+}
+
+public void GivePlayerRank(ESPlayer user, ESPlayer target, ESVipRank rank, ETime time, int amount)
+{
+    char szSteamId[20];
+    GetClientAuthId(target.Index, AuthId_Steam2, szSteamId, sizeof(szSteamId));
+
+    char szInterval[12];
+    GetTimeString(time, szInterval, sizeof(szInterval));
+
+    int length = strlen(szInterval);
+    for(int i = 0; i < length; i++)
+    {
+        if(IsCharLower(szInterval[i]))
+            szInterval[i] = CharToUpper(szInterval[i]);
+    }
+
+	char szQuery[256];
+	Format(szQuery, sizeof(szQuery), "INSERT INTO `vip_api` (`ID`, `playername`, `steamid`, `rank_unique`, `insert_date`, `expire_date`, `admin`) VALUES (NULL, '%N', '%s', '%s', CURRENT_TIMESTAMP, DATE_ADD(NOW(), INTERVAL %i %s), '%N');", target.Index, szSteamId, rank.UniqueName, amount, szInterval, user.Index);
+	g_hDatabase.Query(DB_GiveRank, szQuery, target.Index);
+}
+
+public void DB_GiveRank(Database hOwner, DBResultSet hResult, const char[] szError, int index)
+{
+	if (szError[0])
+	{
+		LogMsg(Error, "DB_GiveRank: %s", szError);
+		return;
+	}
+
+    OnClientPostAdminCheck(index);
 }

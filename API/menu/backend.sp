@@ -294,7 +294,9 @@ public int SelectTimeAmountHandler(Menu menu, MenuAction menuAction, int param1,
         {
             char szInfo[10];
             menu.GetItem(param2, szInfo, sizeof(szInfo));
+
             int amount = StringToInt(szInfo);
+            ESPlayers[param1].StateBag.SetValue("CachedAmount", amount);
 
             int target = -1;
             ESPlayers[param1].StateBag.GetValue("CachedTarget", target);
@@ -346,13 +348,41 @@ public int VerifyMenuHandler(Menu menu, MenuAction menuAction, int param1, int p
     {
         case MenuAction_Select:
         {
-            char szInfo[10];
-            menu.GetItem(param2, szInfo, sizeof(szInfo));
+            int target = -1;
+            ESPlayers[param1].StateBag.GetValue("CachedTarget", target);
 
-            switch(StringToInt(szInfo))
+            if(IsValidClient(target))
             {
-                case 0: PrintToChatAll("TODO");
-                case 1: PrintToChatAll("TODO");
+                char szInfo[10];
+                menu.GetItem(param2, szInfo, sizeof(szInfo));
+                switch(StringToInt(szInfo))
+                {
+                    case 0: ManageUser(ESPlayers[param1], ESPlayers[target]);
+                    case 1:
+                    {
+                        char szUnique[RANK_UNIQUE_LENGTH];
+                        ESPlayers[param1].StateBag.GetString("CachedRank", szUnique, sizeof(szUnique));
+                        
+                        ESVipRank rank;
+                        if(API.GetRank(szUnique, rank))
+                        {
+                            ETime timeFormat;
+                            ESPlayers[param1].StateBag.GetValue("CachedTime", timeFormat);
+
+                            int amount;
+                            ESPlayers[param1].StateBag.GetValue("CachedAmount", amount);
+
+                            GivePlayerRank(ESPlayers[param1], ESPlayers[target], rank, timeFormat, amount);
+                        } else {
+                            MainMenu(ESPlayers[param1]);
+                            PrintToChat(param1, "Something happened..");
+                            LogMsg(Error, "Unable to VerifyMenuHandler.API::GetRank()");
+                        }
+                    }
+                }
+            } else {
+                PlayerList(ESPlayers[param1]);
+                PrintToChat(param1, "The selected player is no longer available.");
             }
         }
 
@@ -385,13 +415,21 @@ public int VerifyDeleteMenuHandler(Menu menu, MenuAction menuAction, int param1,
     {
         case MenuAction_Select:
         {
-            char szInfo[10];
-            menu.GetItem(param2, szInfo, sizeof(szInfo));
+            int target = -1;
+            ESPlayers[param1].StateBag.GetValue("CachedTarget", target);
 
-            switch(StringToInt(szInfo))
+            if(IsValidClient(target))
             {
-                case 0: PrintToChatAll("TODO");
-                case 1: PrintToChatAll("TODO");
+                char szInfo[10];
+                menu.GetItem(param2, szInfo, sizeof(szInfo));
+                switch(StringToInt(szInfo))
+                {
+                    case 0: ManageUser(ESPlayers[param1], ESPlayers[target]);
+                    case 1: RemovePlayerRank(ESPlayers[target]);
+                }
+            } else {
+                PlayerList(ESPlayers[param1]);
+                PrintToChat(param1, "The selected player is no longer available.");
             }
         }
 

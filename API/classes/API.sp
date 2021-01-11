@@ -12,18 +12,6 @@ methodmap API < StringMap {
         return view_as<API>(StateBag);
     }
 
-    public bool GetDefaultRank(ESVipRank esvr)
-    {
-        char szUnique[RANK_UNIQUE_LENGTH];
-        if(!this.GetString("DefaultRank", szUnique, sizeof(szUnique)))
-            return false;
-        
-        if(!ESVipRanks.GetArray(szUnique, esvr, sizeof(esvr)))
-            return false;
-
-        return true;
-    }
-
     public bool IsLoaded()
     {
         bool bLoaded = false;
