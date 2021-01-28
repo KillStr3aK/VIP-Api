@@ -10,7 +10,8 @@ enum EConsoleVariables
 }
 
 enum EForwards {
-    Forward_OnLoaded = 0,
+    Forward_OnUnloaded = 0,
+    Forward_OnLoaded,
     Forward_ModuleAdded,
     Forward_ModuleRemoved,
     Forward_ClientLoaded,
@@ -23,5 +24,6 @@ enum ETime {
     Time_Day,
     Time_Week,
     Time_Month,
-    Time_Year
+    Time_Year,
+    Time_Count
 }

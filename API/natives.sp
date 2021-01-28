@@ -12,6 +12,7 @@ public APLRes AskPluginLoad2(Handle hPlugin, bool bLoad, char[] szError, int iMa
 	CreateNative("VIP_GetFeatureState", Native_GetFeatureState);
 	CreateNative("VIP_SetFeatureState", Native_SetFeatureState);
 
+	APIForward[Forward_OnUnloaded]		= new GlobalForward("VIP_OnUnloaded",			ET_Ignore);
 	APIForward[Forward_OnLoaded]		= new GlobalForward("VIP_OnLoaded",				ET_Ignore);
 	APIForward[Forward_ModuleAdded]		= new GlobalForward("VIP_OnFeatureRegistered",	ET_Ignore, Param_String, Param_String, Param_String, Param_Cell);
 	APIForward[Forward_ModuleRemoved]	= new GlobalForward("VIP_OnFeatureRemoved",		ET_Ignore, Param_String, Param_String, Param_String, Param_Cell);

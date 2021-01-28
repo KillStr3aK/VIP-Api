@@ -32,6 +32,8 @@ static stock void DatabaseCallback(Database hDatabase, const char[] szError, any
         `insert_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, \
         `expire_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00', \
         `admin` varchar(128) COLLATE " ... COLLATION ... " NOT NULL DEFAULT 'SYSTEM' \
+        PRIMARY KEY (`ID`), \
+  		UNIQUE KEY `steamid` (`steamid`)  \
         ) ENGINE=InnoDB  DEFAULT CHARSET=" ... CHARSET ... " COLLATE=" ... COLLATION ... " AUTO_INCREMENT=1;");
     LogMsg(Debug, "Initialization session done! Version: %s", PLUGIN_VERSION);
 
@@ -140,6 +142,7 @@ public void DB_RemoveRank(Database hOwner, DBResultSet hResult, const char[] szE
 		return;
 	}
 
+    OnClientDisconnect(index);
     OnClientPostAdminCheck(index);
 }
 
@@ -152,14 +155,14 @@ public void GivePlayerRank(ESPlayer user, ESPlayer target, ESVipRank rank, ETime
     GetTimeString(time, szInterval, sizeof(szInterval));
 
     int length = strlen(szInterval);
-    for(int i = 0; i < length; i++)
+    for(int i = 1; i < length; i++) //The first letter is always uppercase
     {
-        if(IsCharLower(szInterval[i]))
-            szInterval[i] = CharToUpper(szInterval[i]);
+        //if(IsCharLower(szInterval[i]))
+        szInterval[i] = CharToUpper(szInterval[i]);
     }
 
 	char szQuery[256];
-	Format(szQuery, sizeof(szQuery), "INSERT INTO `vip_api` (`ID`, `playername`, `steamid`, `rank_unique`, `insert_date`, `expire_date`, `admin`) VALUES (NULL, '%N', '%s', '%s', CURRENT_TIMESTAMP, DATE_ADD(NOW(), INTERVAL %i %s), '%N');", target.Index, szSteamId, rank.UniqueName, amount, szInterval, user.Index);
+	Format(szQuery, sizeof(szQuery), "INSERT INTO `vip_api` (`ID`, `playername`, `steamid`, `rank_unique`, `insert_date`, `expire_date`, `admin`) VALUES (NULL, '%N', '%s', '%s', CURRENT_TIMESTAMP, DATE_ADD(NOW(), INTERVAL %i %s), '%N') ON DUPLICATE KEY UPDATE `rank_unique` = %s;", target.Index, szSteamId, rank.UniqueName, amount, szInterval, user.Index, rank.UniqueName);
 	g_hDatabase.Query(DB_GiveRank, szQuery, target.Index);
 }
 
@@ -171,5 +174,6 @@ public void DB_GiveRank(Database hOwner, DBResultSet hResult, const char[] szErr
 		return;
 	}
 
+    OnClientDisconnect(index);
     OnClientPostAdminCheck(index);
 }

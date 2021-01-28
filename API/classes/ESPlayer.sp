@@ -53,10 +53,10 @@ enum struct ESPlayer
 
     ToggleState LoadFeatureState(ESFeature feature)
     {
-        if(feature.Cookie == null)
-            return NO_ACCESS;
-
         if(!this.Rank.HasFeature(feature.UniqueName))
+            return NO_ACCESS;
+            
+        if(feature.Cookie == null)
             return NO_ACCESS;
 
         char szTemp[6];

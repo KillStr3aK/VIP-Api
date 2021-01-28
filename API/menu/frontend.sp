@@ -54,7 +54,7 @@ public void RankDetails(ESPlayer user, ESVipRank rank)
 public void FeaturesMenu(ESPlayer user, ESVipRank rank)
 {
     Menu menu = new Menu(FeaturesMenuHandler);
-    menu.SetTitle("VIP System\nYour Rank: %s\nExpires: - (- days)\n \nRank Details\nSelected Rank: %s\n ", user.Rank.DisplayName, rank.DisplayName);
+    menu.SetTitle("VIP System\nYour Rank: %s\nExpires: - (- days)\n \nManage Perks\nSelected Rank: %s\n ", user.Rank.DisplayName, rank.DisplayName);
 
     if(rank.Features == null)
         return;

@@ -36,6 +36,7 @@ public void OnClientDisconnect(int client)
 public void OnPluginEnd()
 {
     LogMsg(Debug, "Started shutting down session..");
-    
+    Call_StartForward(APIForward[Forward_OnUnloaded]);
+    Call_Finish();
     LogMsg(Debug, "Shutting down session finished!");
 }

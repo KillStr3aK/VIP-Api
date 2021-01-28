@@ -105,6 +105,8 @@ public int FeaturesMenuHandler(Menu menu, MenuAction menuAction, int param1, int
             char szInfo[FEATURE_UNIQUE_LENGTH];
             menu.GetItem(param2, szInfo, sizeof(szInfo));
 
+            ESPlayers[param1].StateBag.SetString("CachedRank", ESPlayers[param1].Rank.UniqueName);
+
             ESFeatureContext context;
             ESPlayers[param1].GetFeature(szInfo, context);
             FeatureDetails(ESPlayers[param1], context);
@@ -114,7 +116,7 @@ public int FeaturesMenuHandler(Menu menu, MenuAction menuAction, int param1, int
         {
             if(param2 == MenuCancel_ExitBack)
             {
-                CallbackMenu(ESPlayers[param1], RankDetails);
+                MainMenu(ESPlayers[param1]);
             }
         }
 
@@ -141,7 +143,7 @@ public int FeatureDetailsHandler(Menu menu, MenuAction menuAction, int param1, i
         {
             if(param2 == MenuCancel_ExitBack)
             {
-                CallbackMenu(ESPlayers[param1], RankDetails);
+                CallbackMenu(ESPlayers[param1], FeaturesMenu);
             }
         }
 
@@ -373,6 +375,7 @@ public int VerifyMenuHandler(Menu menu, MenuAction menuAction, int param1, int p
                             ESPlayers[param1].StateBag.GetValue("CachedAmount", amount);
 
                             GivePlayerRank(ESPlayers[param1], ESPlayers[target], rank, timeFormat, amount);
+                            MainMenu(ESPlayers[param1]);
                         } else {
                             MainMenu(ESPlayers[param1]);
                             PrintToChat(param1, "Something happened..");
@@ -425,7 +428,10 @@ public int VerifyDeleteMenuHandler(Menu menu, MenuAction menuAction, int param1,
                 switch(StringToInt(szInfo))
                 {
                     case 0: ManageUser(ESPlayers[param1], ESPlayers[target]);
-                    case 1: RemovePlayerRank(ESPlayers[target]);
+                    case 1: {
+                        RemovePlayerRank(ESPlayers[target]);
+                        MainMenu(ESPlayers[param1]);
+                    }
                 }
             } else {
                 PlayerList(ESPlayers[param1]);
