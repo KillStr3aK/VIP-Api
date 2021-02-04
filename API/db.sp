@@ -31,9 +31,9 @@ static stock void DatabaseCallback(Database hDatabase, const char[] szError, any
         `rank_unique` varchar(16) COLLATE " ... COLLATION ... " NOT NULL, \
         `insert_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, \
         `expire_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00', \
-        `admin` varchar(128) COLLATE " ... COLLATION ... " NOT NULL DEFAULT 'SYSTEM' \
+        `admin` varchar(128) COLLATE " ... COLLATION ... " NOT NULL DEFAULT 'SYSTEM', \
         PRIMARY KEY (`ID`), \
-  		UNIQUE KEY `steamid` (`steamid`)  \
+  	UNIQUE KEY `steamid` (`steamid`)  \
         ) ENGINE=InnoDB  DEFAULT CHARSET=" ... CHARSET ... " COLLATE=" ... COLLATION ... " AUTO_INCREMENT=1;");
     LogMsg(Debug, "Initialization session done! Version: %s", PLUGIN_VERSION);
 
