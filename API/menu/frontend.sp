@@ -168,7 +168,7 @@ public void SelectTime(ESPlayer user)
     Menu menu = new Menu(SelectTimeHandler);
     menu.SetTitle("VIP System\nYour Rank: %s\nExpires: - (- days)\n \nSelect Time Format", user.Rank.DisplayName);
 
-    for(int i = 0; i < 5; i++)
+    for(int i = 0; i < Time_Count; i++)
     {
         static char szTemp[12];
         GetTimeString(view_as<ETime>(i), szTemp, sizeof(szTemp));
