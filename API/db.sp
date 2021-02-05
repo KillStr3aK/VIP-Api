@@ -33,7 +33,7 @@ static stock void DatabaseCallback(Database hDatabase, const char[] szError, any
         `expire_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00', \
         `admin` varchar(128) COLLATE " ... COLLATION ... " NOT NULL DEFAULT 'SYSTEM', \
         PRIMARY KEY (`ID`), \
-  	UNIQUE KEY `steamid` (`steamid`)  \
+        UNIQUE KEY `steamid` (`steamid`)  \
         ) ENGINE=InnoDB  DEFAULT CHARSET=" ... CHARSET ... " COLLATE=" ... COLLATION ... " AUTO_INCREMENT=1;");
     LogMsg(Debug, "Initialization session done! Version: %s", PLUGIN_VERSION);
 
@@ -44,11 +44,11 @@ static stock void DatabaseCallback(Database hDatabase, const char[] szError, any
     Call_Finish();
 }
 
-static stock void DB_TableCreate(Database hOwner, DBResultSet hResult, const char[] szError, any data)
+static stock void DB_TableCreate(Database hDatabase, DBResultSet hResult, const char[] szError, any data)
 {
 	if (szError[0])
 	{
-		SetFailState("DB_TableCreate: %s", szError);
+		SetFailState("DB_TableCreate returned error: %s", szError);
 		return;
 	}
 
@@ -58,11 +58,11 @@ static stock void DB_TableCreate(Database hOwner, DBResultSet hResult, const cha
 	g_hDatabase.SetCharset(CHARSET);
 }
 
-static stock void DB_ErrorCheck(Database hOwner, DBResultSet hResult, const char[] szError, any data)
+static stock void DB_ErrorCheck(Database hDatabase, DBResultSet hResult, const char[] szError, any data)
 {
 	if (szError[0])
 	{
-		LogError("DB_ErrorCheck: %s", szError);
+		LogError("DB_ErrorCheck returned error: %s", szError);
 	}
 }
 
@@ -82,9 +82,9 @@ public void GetPlayerRank(ESPlayer user)
     g_hDatabase.Query(DB_LoadData, szQuery, user.Index);
 }
 
-static stock void DB_LoadData(Database db, DBResultSet results, const char[] error, int index)
+static stock void DB_LoadData(Database hDatabase, DBResultSet results, const char[] error, int index)
 {
-    if(db == null || results == null)
+    if(hDatabase == null || results == null)
     {
         LogMsg(Error, "DB_LoadData returned error: %s", error);
         return;
@@ -134,11 +134,11 @@ public void RemovePlayerRank(ESPlayer user)
 	g_hDatabase.Query(DB_RemoveRank, szQuery, user.Index);
 }
 
-public void DB_RemoveRank(Database hOwner, DBResultSet hResult, const char[] szError, int index)
+public void DB_RemoveRank(Database hDatabase, DBResultSet hResult, const char[] szError, int index)
 {
 	if (szError[0])
 	{
-		LogMsg(Error, "DB_RemoveRank: %s", szError);
+		LogMsg(Error, "DB_RemoveRank returned error: %s", szError);
 		return;
 	}
 
@@ -162,15 +162,15 @@ public void GivePlayerRank(ESPlayer user, ESPlayer target, ESVipRank rank, ETime
     }
 
 	char szQuery[256];
-	Format(szQuery, sizeof(szQuery), "INSERT INTO `vip_api` (`ID`, `playername`, `steamid`, `rank_unique`, `insert_date`, `expire_date`, `admin`) VALUES (NULL, '%N', '%s', '%s', CURRENT_TIMESTAMP, DATE_ADD(NOW(), INTERVAL %i %s), '%N') ON DUPLICATE KEY UPDATE `rank_unique` = %s;", target.Index, szSteamId, rank.UniqueName, amount, szInterval, user.Index, rank.UniqueName);
+	g_hDatabase.Format(szQuery, sizeof(szQuery), "INSERT INTO `vip_api` (`ID`, `playername`, `steamid`, `rank_unique`, `insert_date`, `expire_date`, `admin`) VALUES (NULL, '%N', '%s', '%s', CURRENT_TIMESTAMP, DATE_ADD(NOW(), INTERVAL %i %s), '%N') ON DUPLICATE KEY UPDATE `rank_unique` = %s;", target.Index, szSteamId, rank.UniqueName, amount, szInterval, user.Index, rank.UniqueName);
 	g_hDatabase.Query(DB_GiveRank, szQuery, target.Index);
 }
 
-public void DB_GiveRank(Database hOwner, DBResultSet hResult, const char[] szError, int index)
+public void DB_GiveRank(Database hDatabase, DBResultSet hResult, const char[] szError, int index)
 {
 	if (szError[0])
 	{
-		LogMsg(Error, "DB_GiveRank: %s", szError);
+		LogMsg(Error, "DB_GiveRank returned error: %s", szError);
 		return;
 	}
 

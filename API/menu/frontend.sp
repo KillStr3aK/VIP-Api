@@ -83,7 +83,7 @@ public void FeaturesMenu(ESPlayer user, ESVipRank rank)
             rank.Features.GetString(szBuffer, szTemp, sizeof(szTemp));
 
             ESFeature feature;
-            if(!g_smFeatures.GetArray(szTemp, feature, sizeof(feature)))
+            if(!ESFeatures.GetArray(szTemp, feature, sizeof(feature)))
             {
                 LogMsg(Error, "%s is an invalid feature!", szTemp);
                 continue;

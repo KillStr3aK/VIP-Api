@@ -31,7 +31,7 @@ methodmap API < StringMap {
 
     public static bool RegisterFeature(const char[] featureName, ESFeature feature)
     {
-        if(g_smFeatures.SetArray(featureName, feature, sizeof(feature), false))
+        if(ESFeatures.SetArray(featureName, feature, sizeof(feature), false))
         {
             LogMsg(Info, "Registered a new module called %s", feature.DisplayName);
             return true;
@@ -44,10 +44,10 @@ methodmap API < StringMap {
     public static bool SetFeatureState(const char[] featureName, ModuleState state)
     {
         ESFeature feature;
-        if(g_smFeatures.GetArray(featureName, feature, sizeof(feature)))
+        if(ESFeatures.GetArray(featureName, feature, sizeof(feature)))
         {
             feature.State = state;
-            g_smFeatures.SetArray(featureName, feature, sizeof(feature));
+            ESFeatures.SetArray(featureName, feature, sizeof(feature));
             return true;
         }
 
@@ -57,11 +57,11 @@ methodmap API < StringMap {
     public static bool UnregisterFeature(const char[] featureName)
     {
         ESFeature feature;
-        if(g_smFeatures.GetArray(featureName, feature, sizeof(feature)))
+        if(ESFeatures.GetArray(featureName, feature, sizeof(feature)))
         {
             delete feature.Plugin;
             delete feature.Cookie;
-            if(g_smFeatures.Remove(featureName))
+            if(ESFeatures.Remove(featureName))
             {
                 LogMsg(Info, "Module %s has been unregistered!", feature.DisplayName);
                 return true;
@@ -75,7 +75,7 @@ methodmap API < StringMap {
     public static bool IsValidFeature(const char[] featureName)
     {
         ESFeature feature;
-        if(g_smFeatures.GetArray(featureName, feature, sizeof(feature)))
+        if(ESFeatures.GetArray(featureName, feature, sizeof(feature)))
         {
             if(feature.Plugin == null) return false;
             if(strcmp(feature.UniqueName, NULL_STRING) == 0) return false;

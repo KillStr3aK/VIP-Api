@@ -28,7 +28,7 @@
 
 public void OnPluginStart()
 {
-    g_smFeatures = new StringMap();
+    ESFeatures = new StringMap();
     ESVipRanks = new StringMap();
     Api = new API();
 

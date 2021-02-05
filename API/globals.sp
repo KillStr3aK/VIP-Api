@@ -1,7 +1,7 @@
 ConVar      Variables[ConVar_Count];
 Database    g_hDatabase;
 
-StringMap   g_smFeatures; /* Contains data with type of ESFeature */
+StringMap   ESFeatures; /* Contains data with type of ESFeature */
 
 int         g_iLogLevel = view_as<int>(LOG_LEVEL);
 

@@ -38,7 +38,7 @@ enum struct ESPlayer
             Keys.GetKey(i, szBuffer, sizeof(szBuffer));
 
             ESFeature feature;
-            if(g_smFeatures.GetArray(szBuffer, feature, sizeof(feature)))
+            if(ESFeatures.GetArray(szBuffer, feature, sizeof(feature)))
             {
                 ESFeatureContext context;
                 ToggleState state = this.LoadFeatureState(feature);
